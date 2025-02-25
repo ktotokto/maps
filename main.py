@@ -11,6 +11,8 @@ BLACK = pygame.Color("#000000")
 class MapParams:
     def __init__(self, coordinates, z_index, apikey):
         self.coordinates, self.z_index, self.apikey = coordinates.split(), z_index, apikey
+        self.get_map()
+
     def key_event(self, key):
         if key == pygame.K_PAGEUP:
             new_z_index = (int(self.z_index) - 1)
@@ -20,22 +22,21 @@ class MapParams:
             self.z_index = str(new_z_index) if new_z_index <= 21 else "21"
         elif key == pygame.K_UP:
             pass
-            #self.coordinates[1] = str(float(self.coordinates[1]) + 10 / (int(self.z_index) * 2))
+            # self.coordinates[1] = str(float(self.coordinates[1]) + 10 / (int(self.z_index) * 2))
         elif key == pygame.K_DOWN:
             pass
-            #self.coordinates[1] = str(float(self.coordinates[1]) - 10 / (int(self.z_index) * 2))
+            # self.coordinates[1] = str(float(self.coordinates[1]) - 10 / (int(self.z_index) * 2))
         elif key == pygame.K_LEFT:
             pass
         elif key == pygame.K_RIGHT:
             pass
-
 
     def get_map(self):
         map_response = get_map_response(self.coordinates, self.z_index, self.apikey)
         im = BytesIO(map_response.content)
         opened_image = Image.open(im)
         opened_image = opened_image.convert('RGB')
-        return pil_image_to_surface(opened_image)
+        self.map = pil_image_to_surface(opened_image)
 
 
 def pil_image_to_surface(image):
