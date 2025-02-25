@@ -10,8 +10,7 @@ BLACK = pygame.Color("#000000")
 
 class MapParams:
     def __init__(self, coordinates, z_index, apikey):
-        self.coordinates, self.z_index, self.apikey = coordinates, z_index, apikey
-
+        self.coordinates, self.z_index, self.apikey = coordinates.split(), z_index, apikey
     def key_event(self, key):
         if key == pygame.K_PAGEUP:
             new_z_index = (int(self.z_index) - 1)
@@ -19,6 +18,16 @@ class MapParams:
         elif key == pygame.K_PAGEDOWN:
             new_z_index = (int(self.z_index) + 1)
             self.z_index = str(new_z_index) if new_z_index <= 21 else "21"
+        elif key == pygame.K_UP:
+            pass
+            #self.coordinates[1] = str(float(self.coordinates[1]) + 10 / (int(self.z_index) * 2))
+        elif key == pygame.K_DOWN:
+            pass
+            #self.coordinates[1] = str(float(self.coordinates[1]) - 10 / (int(self.z_index) * 2))
+        elif key == pygame.K_LEFT:
+            pass
+        elif key == pygame.K_RIGHT:
+            pass
 
 
     def get_map(self):
@@ -51,7 +60,7 @@ def get_coordinates(json_response):
 
 
 def get_map_response(coordinates, z_index, apikey):
-    toponym_longitude, toponym_latitude = coordinates.split(" ")
+    toponym_longitude, toponym_latitude = coordinates
     map_params = {
         "ll": ",".join([toponym_longitude, toponym_latitude]),
         "z": z_index,
