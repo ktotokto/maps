@@ -5,13 +5,16 @@ from io import BytesIO
 from PIL import Image
 
 W, H = SIZE = 1200, 600
+DARK_THEME = pygame.Color("#4e5754")
+LIGHT_THEME = pygame.Color("#dcdcdc")
+WHITE = pygame.Color("#ffffff")
 BLACK = pygame.Color("#000000")
 
 
 class MapParams:
     def __init__(self, coordinates, z_index, apikey, coefficient):
         self.coordinates, self.z_index, self.apikey = coordinates.split(), z_index, apikey
-        self.coefficient = coefficient
+        self.coefficient, self.theme = coefficient, "dark"
         self.key_list = [pygame.K_PAGEUP, pygame.K_PAGEDOWN, pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]
         self.get_map()
 
@@ -34,17 +37,28 @@ class MapParams:
             elif key == self.key_list[5]:
                 self.coordinates[0] = str(float(self.coordinates[0]) + self.coefficient * 2)
             coord_0, coord_1 = float(self.coordinates[0]), float(self.coordinates[1])
-            self.coordinates[0] = str(-(coord_0 / abs(coord_0)) * (360.0 - abs(coord_0))) if abs(coord_0) > 180.0 else self.coordinates[0]
+            self.coordinates[0] = str(-(coord_0 / abs(coord_0)) * (360.0 - abs(coord_0))) if abs(coord_0) > 180.0 else \
+            self.coordinates[0]
             self.coordinates[1] = str((coord_1 / abs(coord_1)) * 85.0) if abs(coord_1) > 85.0 else self.coordinates[1]
             self.get_map()
-        print(self.coordinates)
 
     def get_map(self):
-        map_response = get_map_response(self.coordinates, self.z_index, self.apikey)
+        map_response = get_map_response(self.coordinates, self.z_index, self.apikey, self.theme)
         im = BytesIO(map_response.content)
         opened_image = Image.open(im)
         opened_image = opened_image.convert('RGB')
         self.map = pil_image_to_surface(opened_image)
+
+
+def draw_text_theme(theme, rect):
+    if theme == "dark":
+        pygame.draw.rect(screen, DARK_THEME, rect)
+        text = font.render("ТЁМНАЯ ТЕМА", True, WHITE)
+        return text, text.get_rect(center=rect.center)
+    else:
+        pygame.draw.rect(screen, LIGHT_THEME, rect)
+        text = font.render("СВЕТЛАЯ ТЕМА", True, BLACK)
+        return text, text.get_rect(center=rect.center)
 
 
 def pil_image_to_surface(image):
@@ -68,12 +82,13 @@ def get_coordinates(json_response):
     return toponym["Point"]["pos"]
 
 
-def get_map_response(coordinates, z_index, apikey):
+def get_map_response(coordinates, z_index, apikey, theme="dark"):
     toponym_longitude, toponym_latitude = coordinates
     map_params = {
         "ll": ",".join([toponym_longitude, toponym_latitude]),
         "z": z_index,
         "apikey": apikey,
+        "theme": theme
     }
     map_api_server = "https://static-maps.yandex.ru/v1"
     return requests.get(map_api_server, params=map_params)
@@ -84,6 +99,9 @@ map_params = MapParams(get_coordinates(json_response), "1", "0720951d-bde7-4048-
 
 pygame.init()
 pygame.display.set_caption("Карта (не историческая)")
+font = pygame.font.SysFont(None, 48)
+switch_rect = pygame.Rect(W - 300, H - 80, 300, 80)
+switch_state = False
 screen = pygame.display.set_mode(SIZE)
 while True:
     for event in pygame.event.get():
@@ -91,7 +109,13 @@ while True:
             sys.exit()
         if event.type == pygame.KEYDOWN:
             map_params.key_event(event.key)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            switch_state = not switch_state if switch_rect.collidepoint(pygame.mouse.get_pos()) else switch_state
+            map_params.theme = "dark" if switch_state else "light"
+            map_params.get_map()
+
     screen.fill(BLACK)
     img = map_params.map
     screen.blit(img, img.get_rect(center=(W // 2, H // 2)))
+    screen.blit(*draw_text_theme(map_params.theme, switch_rect))
     pygame.display.flip()
