@@ -1,7 +1,7 @@
 import pygame
 
 from tools.get_json import get_json_response
-from const import RED, FONT, GREEN
+from const import RED, GREEN
 
 pygame.init()
 screen = pygame.display.set_mode((640, 480))
@@ -10,9 +10,10 @@ screen = pygame.display.set_mode((640, 480))
 class InputBox:
     def __init__(self, x, y, w, h, text=''):
         self.rect = pygame.Rect(x, y, w, h)
+        self.font = pygame.font.Font(None, 32)
         self.color = RED
         self.text = text
-        self.txt_surface = FONT.render(text, True, self.color)
+        self.txt_surface = self.font.render(text, True, self.color)
         self.active = False
         self.return_text = None
 
@@ -31,7 +32,7 @@ class InputBox:
                     self.text = self.text[:-1]
                 else:
                     self.text += event.unicode
-                self.txt_surface = FONT.render(self.text, True, self.color)
+                self.txt_surface = self.font.render(self.text, True, self.color)
 
     def update(self):
         width = max(200, self.txt_surface.get_width() + 10)

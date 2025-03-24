@@ -2,7 +2,7 @@ import pygame
 import sys
 from classes.input_box import InputBox
 from classes.map import MapParams
-from const import BLACK, SIZE, W, H
+from const import BLACK, SIZE, W, H, RED
 from tools.draw_text_theme import draw_text_theme
 from tools.get_json import get_json_response, get_coordinates
 
@@ -11,7 +11,7 @@ map_params = MapParams(get_coordinates(json_response), "1", "0720951d-bde7-4048-
 
 pygame.init()
 pygame.display.set_caption("Карта (не историческая)")
-font = pygame.font.SysFont(None, 48)
+font = pygame.font.SysFont(None, 32)
 switch_rect = pygame.Rect(W - 300, H - 80, 300, 80)
 switch_state = False
 input_box = InputBox(0, H - 48, 200, 48)
@@ -24,7 +24,7 @@ while True:
             if event.key == pygame.K_RETURN:
                 input_box.handle_event(event)
                 coord = input_box.get_coord()
-                if coord:
+                if coord and coord["response"]["GeoObjectCollection"]["featureMember"]:
                     map_params.coordinates = get_coordinates(coord).split()
                     map_params.z_index, map_params.coefficient = 7, 0.625
                     map_params.get_map()
