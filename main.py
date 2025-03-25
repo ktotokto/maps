@@ -2,13 +2,14 @@ import pygame
 import sys
 from classes.input_box import InputBox
 from classes.map import MapParams
+from classes.pt import PtList
 from const import BLACK, SIZE, W, H, RED
-from tools.create_pt import create_pt
 from tools.draw_text_theme import draw_text_theme
 from tools.get_json import get_json_response, get_coordinates
 
+pt_list = PtList("pm2rdm")
 json_response = get_json_response("Сыктывкар", "2cba1e40-eafb-42e1-8e61-539727bb58a2")
-map_params = MapParams(get_coordinates(json_response), "1", "0720951d-bde7-4048-8e6c-f22b5f5c3301", 40)
+map_params = MapParams(get_coordinates(json_response), "1", "0720951d-bde7-4048-8e6c-f22b5f5c3301", 40, pt_list.list_coord)
 
 pygame.init()
 pygame.display.set_caption("Карта (не историческая)")
@@ -26,10 +27,12 @@ while True:
                 input_box.handle_event(event)
                 coord = input_box.get_coord()
                 if coord and coord["response"]["GeoObjectCollection"]["featureMember"]:
-                    map_params.coordinates = get_coordinates(coord).split()
-                    coordinates_pt = create_pt((get_coordinates(coord)), "pm2rdm")
+                    coordinates = get_coordinates(coord)
+                    map_params.coordinates = coordinates.split()
+                    pt_list.add_pt(coordinates)
                     map_params.z_index, map_params.coefficient = 7, 0.625
-                    map_params.get_map(coordinates_pt)
+                    map_params.pt_list = pt_list.list_coord
+                    map_params.get_map()
             map_params.key_event(event.key)
         if event.type == pygame.MOUSEBUTTONDOWN:
             switch_state = not switch_state if switch_rect.collidepoint(pygame.mouse.get_pos()) else switch_state

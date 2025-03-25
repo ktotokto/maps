@@ -7,8 +7,9 @@ from tools.pil_image import pil_image_to_surface
 
 
 class MapParams:
-    def __init__(self, coordinates, z_index, apikey, coefficient):
+    def __init__(self, coordinates, z_index, apikey, coefficient, pt_list=()):
         self.coordinates, self.z_index, self.apikey = coordinates.split(), z_index, apikey
+        self.pt_list = pt_list
         self.coefficient, self.theme = coefficient, "light"
         self.key_list = [pygame.K_PAGEUP, pygame.K_PAGEDOWN, pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT]
         self.get_map()
@@ -37,8 +38,8 @@ class MapParams:
             self.coordinates[1] = str((coord_1 / abs(coord_1)) * 85.0) if abs(coord_1) > 85.0 else self.coordinates[1]
             self.get_map()
 
-    def get_map(self, pt_list=()):
-        map_response = get_map_response(self.coordinates, self.z_index, self.apikey, self.theme, pt_list)
+    def get_map(self):
+        map_response = get_map_response(self.coordinates, self.z_index, self.apikey, self.theme, self.pt_list)
         im = BytesIO(map_response.content)
         opened_image = Image.open(im)
         opened_image = opened_image.convert('RGB')
