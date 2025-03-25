@@ -3,6 +3,7 @@ import sys
 from classes.input_box import InputBox
 from classes.map import MapParams
 from const import BLACK, SIZE, W, H, RED
+from tools.create_pt import create_pt
 from tools.draw_text_theme import draw_text_theme
 from tools.get_json import get_json_response, get_coordinates
 
@@ -26,8 +27,9 @@ while True:
                 coord = input_box.get_coord()
                 if coord and coord["response"]["GeoObjectCollection"]["featureMember"]:
                     map_params.coordinates = get_coordinates(coord).split()
+                    coordinates_pt = create_pt((get_coordinates(coord)), "pm2rdm")
                     map_params.z_index, map_params.coefficient = 7, 0.625
-                    map_params.get_map()
+                    map_params.get_map(coordinates_pt)
             map_params.key_event(event.key)
         if event.type == pygame.MOUSEBUTTONDOWN:
             switch_state = not switch_state if switch_rect.collidepoint(pygame.mouse.get_pos()) else switch_state

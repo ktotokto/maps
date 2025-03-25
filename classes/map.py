@@ -36,10 +36,9 @@ class MapParams:
                 self.coordinates[0]
             self.coordinates[1] = str((coord_1 / abs(coord_1)) * 85.0) if abs(coord_1) > 85.0 else self.coordinates[1]
             self.get_map()
-            print(self.z_index, self.coefficient)
 
-    def get_map(self):
-        map_response = get_map_response(self.coordinates, self.z_index, self.apikey, self.theme)
+    def get_map(self, pt_list=()):
+        map_response = get_map_response(self.coordinates, self.z_index, self.apikey, self.theme, pt_list)
         im = BytesIO(map_response.content)
         opened_image = Image.open(im)
         opened_image = opened_image.convert('RGB')
