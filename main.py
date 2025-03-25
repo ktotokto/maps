@@ -3,7 +3,8 @@ import sys
 from classes.input_box import InputBox
 from classes.map import MapParams
 from classes.pt import PtList
-from const import BLACK, SIZE, W, H, RED
+from const import BLACK, SIZE, W, H
+from tools.draw_button import draw_button
 from tools.draw_text_theme import draw_text_theme
 from tools.get_json import get_json_response, get_coordinates
 
@@ -15,6 +16,7 @@ pygame.init()
 pygame.display.set_caption("Карта (не историческая)")
 font = pygame.font.SysFont(None, 32)
 switch_rect = pygame.Rect(W - 300, H - 80, 300, 80)
+input_button_rect = pygame.Rect(0, H - 138, 150, 80)
 switch_state = False
 input_box = InputBox(0, H - 48, 200, 48)
 screen = pygame.display.set_mode(SIZE)
@@ -36,8 +38,14 @@ while True:
             map_params.key_event(event.key)
         if event.type == pygame.MOUSEBUTTONDOWN:
             switch_state = not switch_state if switch_rect.collidepoint(pygame.mouse.get_pos()) else switch_state
+            old_theme = map_params.theme
             map_params.theme = "dark" if switch_state else "light"
-            map_params.get_map()
+            if map_params.theme != old_theme:
+                map_params.get_map()
+            if input_button_rect.collidepoint(pygame.mouse.get_pos()):
+                pt_list.list_coord = [pt_list.list_coord[-1]]
+                map_params.pt_list = pt_list.list_coord
+                map_params.get_map()
         input_box.handle_event(event)
     input_box.update()
     screen.fill(BLACK)
@@ -45,4 +53,5 @@ while True:
     img = map_params.map
     screen.blit(img, img.get_rect(center=(W // 2, H // 2)))
     screen.blit(*draw_text_theme(screen, map_params.theme, switch_rect, font))
+    screen.blit(*draw_button(screen, input_button_rect, font))
     pygame.display.flip()
