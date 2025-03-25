@@ -37,6 +37,7 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             switch_state = not switch_state if switch_rect.collidepoint(pygame.mouse.get_pos()) else switch_state
             map_params.theme = "dark" if switch_state else "light"
+            map_params.get_map()
         input_box.handle_event(event)
     input_box.update()
     screen.fill(BLACK)
